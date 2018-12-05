@@ -1,0 +1,55 @@
+version: "3.1"
+
+services:
+  webserver:
+    image: nginx:alpine
+    container_name: cpd-curriculum
+    working_dir: /application
+    volumes:
+      - .:/application
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - "3005:80"
+    depends_on:
+      - php-fpm
+    networks:
+      - cpdcurriculumback
+      - cpdcurriculumfront
+
+  php-fpm:
+    build:
+      context: ./docker
+      dockerfile: DockerFile-php-fpm
+    container_name: cpdcurriculum-php
+    volumes:
+      - .:/application
+    depends_on:
+      - mariadb
+      - redis
+    networks:
+      - cpdcurriculumback
+
+  redis:
+    image: redis:3.2-alpine
+    container_name: cpdcurriculum-redis
+    networks:
+      - cpdcurriculumback
+
+  mariadb:
+    image: mariadb:10.3
+    container_name: cpdcurriculum-mariadb
+    volumes:
+      - ./docker/portal_curriculum_db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password123
+      MYSQL_USER: atv-dbuser
+      MYSQL_PASSWORD: atv-dbpassword
+      MYSQL_DATABASE: atvcpdcurriculum
+    ports:
+      - "53306:3306"
+    networks:
+      - cpdcurriculumback
+
+networks:
+  cpdcurriculumfront:
+  cpdcurriculumback:
