@@ -1,0 +1,254 @@
+swagger: '2.0'
+info:
+  description: |
+    API to manage Modules, components and assignments for Asset TV CPD
+  version: "1.0.0"
+  title: ATV CPD Curriculum
+  contact:
+    email: nigel.green@asset.tv
+
+tags:
+- name: module
+  description: Manage core module data
+- name: component
+  description: Manage components that make up a module
+- name: assignment
+  description: Manage assignment of modules to organisations and departments
+
+paths:
+  /module:
+    parameters:
+      - in: header
+        name: Authorization
+        description: Auth0 JWT to identify the user in the form "Bearer JWT"
+        required: true
+        type: string
+    get:
+      tags:
+        - module
+      summary: Retrieve all modules
+      produces:
+        - application/json
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ModuleOutput'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: No query results for model [App\\Module].
+        500:
+          description: Server error
+  /module/{module_id}:
+    parameters:
+    - in: header
+      name: Authorization
+      description: Auth0 JWT to identify the user in the form "Bearer JWT"
+      required: true
+      type: string
+    - in: path
+      name: module_id
+      description: ID to identify the module
+      required: true
+      type: integer
+    get:
+      tags:
+      - module
+      summary: Retrieve a single module
+      produces:
+      - application/json
+      responses:
+        200:
+          description: ok
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ModuleOutput'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: No query results for model [App\\Module].
+        500:
+          description: Server error
+    put:
+      tags:
+      - module
+      summary: Update module details
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Revised details to update a module
+        required: true
+        schema:
+          $ref: '#/definitions/ModuleInput'
+      responses:
+        204:
+          description: ok
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: No query results for model [App\\Module].
+        422:
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/422UnprocessableEntity'
+        500:
+          description: Server error
+    delete:
+      tags:
+      - module
+      summary: Delete a module
+      produces:
+      - application/json
+      responses:
+        204:
+          description: No content
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: No query results for model [App\\Department].
+        500:
+          description: Server error
+
+securityDefinitions:
+  token:
+    type: JWT
+    in: header
+    name: Authorization
+
+definitions:
+  ModuleInput:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Becoming a better CFO
+      description:
+        type: string
+        example: Description of the 'Becoming a better CFO' module
+      created_by:
+        type: string
+        example: Nigel Green
+      due:
+        type: date
+        example: 2018-12-25 13:37:42
+      public:
+        type: boolean
+        example: false
+  ModuleOutput:
+    type: object
+    properties:
+      uuid:
+        type: uuid
+        example: d5fd640e-28c1-4750-bec7-b331c9dc8cc4
+      name:
+        type: string
+        example: Becoming a better CFO
+      description:
+        type: string
+        example: Description of the 'Becoming a better CFO' module
+      created_by:
+        type: string
+        example: Nigel Green
+      due:
+        type: date
+        example: 2018-12-25 13:37:42
+      components:
+        type: array
+        items:
+          $ref: '#/definitions/ComponentOutput'
+  ComponentInput:
+    type: object
+    properties:
+      uuid:
+        type: uuid
+        example: d5fd640e-28c1-4750-bec7-b331c9dc8cc4
+      name:
+        type: string
+        example: Brexit impact and forecasts
+      description:
+        type: string
+        example: Description of the 'Brexit impact and forecasts' video
+      units:
+        type: integer
+        example: number of seconds of CPD the component is worth
+      module_order:
+        type: integer
+        example: Where the component should be ordered within it's module
+      required:
+        type: boolean
+        example: Whether the component needs to be completed for the module to count as completed
+  ComponentOutput:
+    type: object
+    properties:
+      uuid:
+        type: uuid
+        example: d5fd640e-28c1-4750-bec7-b331c9dc8cc4
+      name:
+        type: string
+        example: Brexit impact and forecasts
+      description:
+        type: string
+        example: Description of the 'Brexit impact and forecasts' video
+      units:
+        type: integer
+        example: number of seconds of CPD the component is worth
+      module_order:
+        type: integer
+        example: Where the component should be ordered within it's module
+      required:
+        type: boolean
+        example: Whether the component needs to be completed for the module to count as completed
+
+  400CannotUpdateOwner:
+    type: string
+    example: Cannot change owner details through the portal.
+  409ModuleAlreadyAssignedToEntity:
+    type: object
+    properties:
+      message:
+        type: string
+        example: Module is already linked to department.
+  422UnprocessableEntity:
+    type: object
+    properties:
+      message:
+        type: string
+        example: The given data was invalid.
+      errors:
+        type: object
+        properties:
+          error_field_1:
+            type: array
+            items:
+              type: string
+              example: Error message for this field.
+          error_field_2:
+            type: array
+            items:
+              type: string
+              example: Error message for this field.
+
+security:
+- api_key: []
+# host: localhost:3002
+# basePath: /api/v1
+schemes:
+- https
+- http
+externalDocs:
+  description: Confluence page describing Curriculum
+  url: https://think-digital.atlassian.net/wiki/spaces/AP/pages/251199489/Courses

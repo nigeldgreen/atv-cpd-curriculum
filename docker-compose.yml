@@ -44,7 +44,7 @@ services:
       MYSQL_ROOT_PASSWORD: password123
       MYSQL_USER: atv-dbuser
       MYSQL_PASSWORD: atv-dbpassword
-      MYSQL_DATABASE: atvcpdcurriculum
+      MYSQL_DATABASE: atv-cpd-curriculum
     ports:
       - "53306:3306"
     networks:
