@@ -7,22 +7,28 @@ use GuzzleHttp\Client;
 
 class UserFinder
 {
+    public $user;
     protected $client;
+    protected $jwt;
+    protected $organisation_id;
 
     /**
      * UserFinder constructor
      *
      * @param $token
      */
-    public function __construct($token)
+    public function __construct($jwt, $organisation_id)
     {
         $this->client = new Client([
             'headers' => [
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $token,
+                'Authorization' => 'Bearer ' . $jwt,
             ],
         ]);
+
+        $this->jwt = $jwt;
+        $this->organisation_id = $organisation_id;
     }
 
     /**
@@ -33,6 +39,10 @@ class UserFinder
      */
     public function getUser()
     {
+        if (isset($this->user)) {
+            return $this->user;
+        }
+
         $url = config('cpd-curriculum.atlasbaseurl') . '/user_data';
 
         $response = $this->client->request('GET', $url);
@@ -42,8 +52,10 @@ class UserFinder
             'uuid' => $user_data->uuid,
             'name' => $user_data->standard_attributes->name,
             'email' => $user_data->standard_attributes->email,
+            'jwt' => $this->jwt,
+            'organisation_id' => $user_data->roles->{$this->organisation_id},
         ]);
 
-        return $user;
+        return $this->user = $user;
     }
 }

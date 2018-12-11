@@ -33,11 +33,13 @@ class JwtGuard implements Guard
             return $this->user;
         }
         $user = null;
-        $token = $this->getTokenForRequest();
+        $jwt = $this->getJwtForRequest();
+        $organisation_id = $this->getOrganisationIdForRequest();
 
-        if (! empty($token)) {
+        if (! empty($jwt) && ! empty($organisation_id)) {
             $user = (app()->makeWith('App\Classes\UserFinder', [
-                'token' => $token,
+                'jwt' => $jwt,
+                'organisation_id' => $organisation_id,
             ]))->getUser();
         }
 
@@ -49,9 +51,14 @@ class JwtGuard implements Guard
      *
      * @return string
      */
-    public function getTokenForRequest()
+    public function getJwtForRequest()
     {
         return $this->request->bearerToken();
+    }
+
+    public function getOrganisationIdForRequest()
+    {
+        return $this->request->header('X-Organisation-Id');
     }
 
     /**

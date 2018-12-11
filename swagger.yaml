@@ -8,12 +8,14 @@ info:
     email: nigel.green@asset.tv
 
 tags:
-- name: module
-  description: Manage core module data
-- name: component
-  description: Manage components that make up a module
-- name: assignment
-  description: Manage assignment of modules to organisations and departments
+  - name: module
+    description: Manage core module data
+  - name: component
+    description: Manage components that make up a module
+  - name: assignment
+    description: Manage assignment of modules to organisations and departments
+  - name: reports
+    description: Retrieve data to correctly show reporting in the UI
 
 paths:
   /module:
@@ -46,22 +48,22 @@ paths:
           description: Server error
   /module/{module_id}:
     parameters:
-    - in: header
-      name: Authorization
-      description: Auth0 JWT to identify the user in the form "Bearer JWT"
-      required: true
-      type: string
-    - in: path
-      name: module_id
-      description: ID to identify the module
-      required: true
-      type: integer
+      - in: header
+        name: Authorization
+        description: Auth0 JWT to identify the user in the form "Bearer JWT"
+        required: true
+        type: string
+      - in: path
+        name: module_id
+        description: ID to identify the module
+        required: true
+        type: integer
     get:
       tags:
-      - module
+        - module
       summary: Retrieve a single module
       produces:
-      - application/json
+        - application/json
       responses:
         200:
           description: ok
@@ -79,17 +81,17 @@ paths:
           description: Server error
     put:
       tags:
-      - module
+        - module
       summary: Update module details
       produces:
-      - application/json
+        - application/json
       parameters:
-      - in: body
-        name: body
-        description: Revised details to update a module
-        required: true
-        schema:
-          $ref: '#/definitions/ModuleInput'
+        - in: body
+          name: body
+          description: Revised details to update a module
+          required: true
+          schema:
+            $ref: '#/definitions/ModuleInput'
       responses:
         204:
           description: ok
@@ -107,10 +109,10 @@ paths:
           description: Server error
     delete:
       tags:
-      - module
+        - module
       summary: Delete a module
       produces:
-      - application/json
+        - application/json
       responses:
         204:
           description: No content
@@ -123,11 +125,214 @@ paths:
         500:
           description: Server error
 
-securityDefinitions:
-  token:
-    type: JWT
-    in: header
-    name: Authorization
+
+
+  /component/{component_id}:
+    parameters:
+      - in: header
+        name: Authorization
+        description: Auth0 JWT to identify the user in the form "Bearer JWT"
+        required: true
+        type: string
+      - in: path
+        name: component_id
+        description: ID to identify the component
+        required: true
+        type: integer
+    get:
+      tags:
+        - component
+      summary: Retrieve a single component
+      produces:
+        - application/json
+      responses:
+        200:
+          description: ok
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/ComponentOutput'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: No query results for model [App\\Component].
+        500:
+          description: Server error
+    put:
+      tags:
+        - component
+      summary: Update component details
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Revised details to update a component
+          required: true
+          schema:
+            $ref: '#/definitions/ComponentInput'
+      responses:
+        204:
+          description: ok
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: No query results for model [App\\Component].
+        422:
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/422UnprocessableEntity'
+        500:
+          description: Server error
+    delete:
+      tags:
+        - component
+      summary: Delete a component
+      produces:
+        - application/json
+      responses:
+        204:
+          description: No content
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: No query results for model [App\\Component].
+        500:
+          description: Server error
+
+
+
+  /module/{module_id}/component/{component_id}:
+    parameters:
+      - in: header
+        name: Authorization
+        description: Auth0 JWT to identify the user in the form "Bearer JWT"
+        required: true
+        type: string
+      - in: path
+        name: module_id
+        description: ID to identify the module
+        required: true
+        type: integer
+      - in: path
+        name: component_id
+        description: ID to identify the component
+        required: true
+        type: integer
+    post:
+      tags:
+        - assignment
+      summary: Create a link between a module and a component
+      produces:
+        - application/json
+      responses:
+        204:
+          description: ok
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        500:
+          description: Server error
+    delete:
+      tags:
+        - assignment
+      summary: Remove a link between a module and a component
+      produces:
+        - application/json
+      responses:
+        204:
+          description: No content
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        404:
+          description: No link between that module and component.
+        500:
+          description: Server error
+
+
+
+  /reports/module/{module_id}:
+    parameters:
+      - in: header
+        name: Authorization
+        description: Auth0 JWT to identify the user in the form "Bearer JWT"
+        required: true
+        type: string
+      - in: path
+        name: module_id
+        description: ID to identify the module
+        required: true
+        type: integer
+      - in: query
+        name: uuids
+        description: list of users to return data for
+        required: true
+        type: array
+    get:
+      tags:
+        - reports
+      summary: Get completion data for a component, for any UUIDs passed in
+      produces:
+        - application/json
+      responses:
+        200:
+          description: ok
+          schema:
+            type: object
+            $ref: '#/definitions/ModuleCompletionReport'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        500:
+          description: Server error
+
+
+
+  /reports/component/{component_id}:
+    parameters:
+      - in: header
+        name: Authorization
+        description: Auth0 JWT to identify the user in the form "Bearer JWT"
+        required: true
+        type: string
+      - in: path
+        name: component_id
+        description: ID to identify the component
+        required: true
+        type: integer
+      - in: query
+        name: uuids
+        description: list of users to return data for
+        required: true
+        type: array
+    get:
+      tags:
+        - reports
+      summary: Get completion data for a module, for any UUIDs passed in
+      produces:
+        - application/json
+      responses:
+        200:
+          description: ok
+          schema:
+            type: object
+            $ref: '#/definitions/ModuleCompletionReport'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        500:
+          description: Server error
 
 definitions:
   ModuleInput:
@@ -143,8 +348,8 @@ definitions:
         type: string
         example: Nigel Green
       due:
-        type: date
-        example: 2018-12-25 13:37:42
+        type: string
+        example: "2018-12-25 13:37:42"
       public:
         type: boolean
         example: false
@@ -152,7 +357,7 @@ definitions:
     type: object
     properties:
       uuid:
-        type: uuid
+        type: string
         example: d5fd640e-28c1-4750-bec7-b331c9dc8cc4
       name:
         type: string
@@ -164,8 +369,8 @@ definitions:
         type: string
         example: Nigel Green
       due:
-        type: date
-        example: 2018-12-25 13:37:42
+        type: string
+        example: "2018-12-25 13:37:42"
       components:
         type: array
         items:
@@ -173,9 +378,6 @@ definitions:
   ComponentInput:
     type: object
     properties:
-      uuid:
-        type: uuid
-        example: d5fd640e-28c1-4750-bec7-b331c9dc8cc4
       name:
         type: string
         example: Brexit impact and forecasts
@@ -184,18 +386,18 @@ definitions:
         example: Description of the 'Brexit impact and forecasts' video
       units:
         type: integer
-        example: number of seconds of CPD the component is worth
+        example: 1800
       module_order:
         type: integer
-        example: Where the component should be ordered within it's module
+        example: 1
       required:
         type: boolean
-        example: Whether the component needs to be completed for the module to count as completed
+        example: true
   ComponentOutput:
     type: object
     properties:
       uuid:
-        type: uuid
+        type: string
         example: d5fd640e-28c1-4750-bec7-b331c9dc8cc4
       name:
         type: string
@@ -205,13 +407,33 @@ definitions:
         example: Description of the 'Brexit impact and forecasts' video
       units:
         type: integer
-        example: number of seconds of CPD the component is worth
+        example: 1800
       module_order:
         type: integer
-        example: Where the component should be ordered within it's module
+        example: 1
       required:
         type: boolean
-        example: Whether the component needs to be completed for the module to count as completed
+        example: true
+  ModuleCompletionReport:
+    type: object
+    properties:
+      uuid:
+        type: string
+        example: d5fd640e-28c1-4750-bec7-b331c9dc8cc4
+      name:
+        type: string
+        example: Brexit impact and forecasts
+      user_data:
+        type: array
+        items:
+          type: object
+          properties:
+            uuid:
+              type: string
+              example: d5fd640e-28c1-4750-bec7-b331c9dc8cc4
+            completed:
+              type: integer
+              example: 7200
 
   400CannotUpdateOwner:
     type: string
@@ -242,13 +464,19 @@ definitions:
               type: string
               example: Error message for this field.
 
+securityDefinitions:
+  jwt:
+    type: apiKey
+    in: header
+    name: Authorization
+
 security:
-- api_key: []
+  - jwt: []
 # host: localhost:3002
 # basePath: /api/v1
 schemes:
-- https
-- http
+  - https
+  - http
 externalDocs:
   description: Confluence page describing Curriculum
   url: https://think-digital.atlassian.net/wiki/spaces/AP/pages/251199489/Courses
