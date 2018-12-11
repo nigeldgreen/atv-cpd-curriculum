@@ -10,18 +10,19 @@ class AuthenticationTest extends TestCase
     public function valid_jwt_will_create_authenticated_user()
     {
         $this->withExceptionHandling();
-        $response = $this->json('GET', '/api/v1/module', [], [
+        $response = $this->json('GET', '/api/v1/status', [], [
             'Authorization' => 'Bearer ' . env('TEST_TOKEN'),
             'X-Organisation-Id' => 1,
         ]);
 
         $response->assertStatus(200);
+        $response->assertSee('Working!');
     }
     /** @test */
     public function missing_jwt_will_fail()
     {
         $this->withExceptionHandling();
-        $response = $this->json('GET', '/api/v1/module', [], [
+        $response = $this->json('GET', '/api/v1/status', [], [
             'X-Organisation-Id' => 1,
         ]);
 
@@ -31,7 +32,7 @@ class AuthenticationTest extends TestCase
     public function missing_organisation_id_will_fail()
     {
         $this->withExceptionHandling();
-        $response = $this->json('GET', '/api/v1/module', [], [
+        $response = $this->json('GET', '/api/v1/status', [], [
             'Authorization' => 'Bearer ' . env('TEST_TOKEN'),
         ]);
 

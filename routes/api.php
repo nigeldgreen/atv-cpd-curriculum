@@ -14,6 +14,10 @@ use Illuminate\Http\Request;
 */
 
 Route::prefix('v1')->middleware(['auth:api'])->group(function () {
+    Route::get('/status', function() {
+        return 'Working!';
+    });
+
     Route::get('/module', 'ModuleController@index');
     Route::get('/module/{module_id}', 'ModuleController@show');
     Route::post('/module', 'ModuleController@store');
